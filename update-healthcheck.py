@@ -60,18 +60,17 @@ user_choice = read_user_input()
 print('Choice ====', user_choice)
 
 # update all found healthhecks
-# if not dry_run:
-#     updated_healthcehcks = []
-#     for healthcheck in found_healthchecks:
-#         update_response = client.update_health_check(
-#                                 HealthCheckId = healthcheck['Id'],
-#                                 IPAddress = new_ip,
-#                                 Regions = new_regions
-#                           )
-#         updated_healthcehcks.append(update_response)
-#
-#     # write changes to (log) file
-#     log_filename_a = 'after_update_' + time_now
-#     with open(log_filename_a, 'w') as file:
-#         file.write(json.dumps(updated_healthcehcks, indent=4))
+if not dry_run and user_choice:
+    updated_healthcehcks = []
+    for healthcheck in found_healthchecks:
+        update_response = client.update_health_check(
+                                HealthCheckId = healthcheck['Id'],
+                                IPAddress = new_ip,
+                                Regions = new_regions
+                          )
+        updated_healthcehcks.append(update_response)
+    # write changes to (log) file
+    log_filename_a = 'after_update_' + time_now
+    with open(log_filename_a, 'w') as file:
+        file.write(json.dumps(updated_healthcehcks, indent=4))
 
