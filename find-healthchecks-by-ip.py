@@ -45,7 +45,12 @@ def main(account_profile, ip_list):
 
 
 if __name__ == '__main__':
-    account_profile = 'aws-stg'
+    # --ip
+    # --ip-list <read-from-file>
+    # --net
+    # --net-list <read-from-file>
+    # --output csv|txt|...
+
 
     parser = argparse.ArgumentParser(description='DESCRIPTION put something here')
     parser.add_argument('--ip', nargs='*', required=False, help='write help', )
