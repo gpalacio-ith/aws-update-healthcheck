@@ -32,50 +32,55 @@ def read_user_input():
         else:
            print("Please respond with 'y|yes' or 'n|no':", end=' ')
 
-# apply changes or just test
-# TRUE for testing
-dry_run = True
+def main():
+    # apply changes or just test
+    # TRUE for testing
+    dry_run = True
 
-# creates aws api sessions params
-session = boto3.session.Session(profile_name='aws-prd')
-client = session.client('route53')
+    # creates aws api sessions params
+    session = boto3.session.Session(profile_name='aws-prd')
+    client = session.client('route53')
 
-# search for matching healthchecks
-target_ip_list = ['170.176.145.40']
-found_healthchecks = aws.get_healthchecks(target_ip_list, session)
+    # search for matching healthchecks
+    target_ip_list = ['170.176.145.40']
+    found_healthchecks = aws.get_healthchecks(target_ip_list, session)
 
-# write to (log) file before applying any change
-time_now = datetime.now().strftime('%Y_%m_%d_%H%M%S')
-log_filename_b = 'log/before_update_' + time_now
-with open(log_filename_b, 'w') as file:
-    file.write(json.dumps(found_healthchecks, indent=4))
+    # write to (log) file before applying any change
+    time_now = datetime.now().strftime('%Y_%m_%d_%H%M%S')
+    log_filename_b = 'log/before_update_' + time_now
+    with open(log_filename_b, 'w') as file:
+        file.write(json.dumps(found_healthchecks, indent=4))
 
-# new parameters for target healthchecks
-new_ip = '170.176.145.40'
-new_regions = ['us-east-1', 'us-west-1', 'us-west-2', 'eu-west-1']
+    # new parameters for target healthchecks
+    new_ip = '170.176.145.40'
+    new_regions = ['us-east-1', 'us-west-1', 'us-west-2', 'eu-west-1']
 
-# Print messages
-print_hc_info(found_healthchecks)
-print('\nAll the previous healthchecks will be updated with this new config: ')
-print('  - new ip       =', new_ip)
-print('  - new regions  =', new_regions)
-print('\nDo you wish to proceed? [y/n]:', end=' ')
-user_choice = read_user_input()
+    # Print messages
+    print_hc_info(found_healthchecks)
+    print('\nAll the previous healthchecks will be updated with this new config: ')
+    print('  - new ip       =', new_ip)
+    print('  - new regions  =', new_regions)
+    print('\nDo you wish to proceed? [y/n]:', end=' ')
+    user_choice = read_user_input()
 
 
-# update all found healthhecks
-if not dry_run and user_choice:
-    print('>>> Updating healthchecks...')
-    updated_healthcehcks = []
-    for healthcheck in found_healthchecks:
-        update_response = client.update_health_check(
-                                HealthCheckId = healthcheck['Id'],
-                                IPAddress = new_ip,
-                                Regions = new_regions
-                          )
-        updated_healthcehcks.append(update_response)
-    # write changes to (log) file
-    log_filename_a = 'log/after_update_' + time_now
-    with open(log_filename_a, 'w') as file:
-        file.write(json.dumps(updated_healthcehcks, indent=4))
-    print('>>> Update completed.')
+    # update all found healthhecks
+    if not dry_run and user_choice:
+        print('>>> Updating healthchecks...')
+        updated_healthcehcks = []
+        for healthcheck in found_healthchecks:
+            update_response = client.update_health_check(
+                                    HealthCheckId = healthcheck['Id'],
+                                    IPAddress = new_ip,
+                                    Regions = new_regions
+                              )
+            updated_healthcehcks.append(update_response)
+        # write changes to (log) file
+        log_filename_a = 'log/after_update_' + time_now
+        with open(log_filename_a, 'w') as file:
+            file.write(json.dumps(updated_healthcehcks, indent=4))
+        print('>>> Update completed.')
+
+
+if __name__ == '__main__':
+    main()
