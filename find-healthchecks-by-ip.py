@@ -8,18 +8,21 @@ import argparse
 
 # Given a list, prints info of those healthcehcks in the list
 def print_hc_info(hc_list):
-    print('These healthchecks were found:')
-    for index,hc in enumerate(hc_list):
-        hc_fqdn = ''
-        hc_path = ''
-        if 'FullyQualifiedDomainName' in hc['HealthCheckConfig']:
-            hc_fqdn = hc['HealthCheckConfig']['FullyQualifiedDomainName']
-        if 'ResourcePath' in hc['HealthCheckConfig']:
-            hc_path = hc['HealthCheckConfig']['ResourcePath']
-        hc_type = hc['HealthCheckConfig']['Type']
-
-        print('> ' + hc['HealthCheckConfig']['IPAddress'] + ' ' + f"{hc['HealthCheckConfig']['Type']: <5}" + ' ' + hc['Id'] + ' ' + hc_fqdn + hc_path)
-    print(f"\nTotal Healthchecks = {index+1}")
+    # if the list is empty
+    if not hc_list:
+        print("\nNo healthchecks were found for the given IP(s)/range(s).")
+    else:
+        print('These healthchecks were found:')
+        for index,hc in enumerate(hc_list):
+            hc_fqdn = ''
+            hc_path = ''
+            if 'FullyQualifiedDomainName' in hc['HealthCheckConfig']:
+                hc_fqdn = hc['HealthCheckConfig']['FullyQualifiedDomainName']
+            if 'ResourcePath' in hc['HealthCheckConfig']:
+                hc_path = hc['HealthCheckConfig']['ResourcePath']
+            hc_type = hc['HealthCheckConfig']['Type']
+            print('> ' + hc['HealthCheckConfig']['IPAddress'] + ' ' + f"{hc['HealthCheckConfig']['Type']: <5}" + ' ' + hc['Id'] + ' ' + hc_fqdn + hc_path)
+        print(f"\nTotal Healthchecks = {index+1}")
 
 def read_user_input():
     yes = {'yes','y', 'ye', ''}
@@ -51,13 +54,24 @@ if __name__ == '__main__':
     # --net-list <read-from-file>
     # --output csv|txt|...
 
-
+    # input arguments
     parser = argparse.ArgumentParser(description='DESCRIPTION put something here')
-    parser.add_argument('--ip', nargs='*', required=False, help='write help', )
+
+    # group of arguments, only one accepted
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--ip', nargs='*', help='write help', default=argparse.SUPPRESS)
+    group.add_argument('--ip-list', help='write help', default=argparse.SUPPRESS)
+    group.add_argument('--net', nargs='*', help='write help', default=argparse.SUPPRESS)
+    group.add_argument('--net-list', help='write help', default=argparse.SUPPRESS)
+
+    # other arguments
     parser.add_argument('--profile-name', default='default', type=str, required=True, help='write help')
 
 
     args = parser.parse_args()
     print('Searching this ip/ranges for healthchecks:')
-    print(args.ip, '\n')
-    main(args.profile_name, args.ip)
+    #print(args.ip, '\n')
+
+    if 'ip_list' not in args:
+        print('no ip list')
+    #main(args.profile_name, args.ip)

@@ -61,8 +61,9 @@ def print_hc_info(hc_list):
                 name_tag_value = every_tag['Value']
 
         #print('> ' + f"{name_tag_value: <50}" + ' ' + hc['HealthCheckConfig']['IPAddress'] + ' ' + f"{hc['HealthCheckConfig']['Type']: <5}" + ' ' + hc['Id'] + ' ' + hc_fqdn + hc_path)
-        new_hc_name = compute_new_hc_name(hc['HealthCheckConfig']['IPAddress'], hc_fqdn)
-        print('' + hc['Id'] + ',' + hc['HealthCheckConfig']['IPAddress'] + ',' + hc['HealthCheckConfig']['Type'] + ',' + name_tag_value + ',' + new_hc_name)
+        #new_hc_name = compute_new_hc_name(hc['HealthCheckConfig']['IPAddress'], hc_fqdn)
+         print('' + hc['Id'] + ',' + hc['HealthCheckConfig']['IPAddress'] + ',' + hc['HealthCheckConfig']['Type'] + ',' + name_tag_value + ',' + new_hc_name)
+        #print('' + hc['Id'] + ',' + name_tag_value)
     print(f"- Total of {index+1} healthchecks.")
 
 # apply changes or just test
@@ -76,31 +77,21 @@ client = session.client('route53')
 # search for matching healthchecks
 stg_net_ips_list = find_all_ips_stg_ranges()
 found_healthchecks = aws.get_healthchecks(stg_net_ips_list, session)
+#found_healthchecks = aws.get_all_healthchecks(session)
 
-# print_hc_info(found_healthchecks)
+print_hc_info(found_healthchecks)
 
-lm_tag = {'Key':'ExportToLogicMonitor','Value':'True'}
-accepted_healthcheck_types = ['HTTP', 'HTTPS']
-for every_hc in found_healthchecks:
-    # print(every_hc['HealthCheckConfig']['Type'])
-    if every_hc['HealthCheckConfig']['Type'] in accepted_healthcheck_types:
-        new_name = compute_new_hc_name(every_hc['HealthCheckConfig']['IPAddress'], every_hc['HealthCheckConfig']['FullyQualifiedDomainName'])
-        #new_tags = [{'Key':'Name', 'Value':new_name}, lm_tag]
-        new_tags = [lm_tag]
-
-        response = client.change_tags_for_resource(
-                        ResourceType='healthcheck',
-                        ResourceId=every_hc['Id'],
-                        AddTags = new_tags
-                    )
-
+#lm_tag = {'Key':'ExportToLogicMonitor','Value':'True'}
+#accepted_healthcheck_types = ['HTTP', 'HTTPS']
 #for every_hc in found_healthchecks:
-#    if every_hc['HealthCheckConfig']['Type'] in 'HTTPS':
-#        response = client.list_tags_for_resource(
-#            ResourceType='healthcheck',
-#            ResourceId=every_hc['Id']
-#        )
-#        # print(json.dumps(response['ResourceTagSet']['Tags']['Value'],indent=4))
-#        for every_tag in response['ResourceTagSet']['Tags']:
-#            if every_tag['Key'] in 'Name':
-#                print(every_tag['Value'])
+#    # print(every_hc['HealthCheckConfig']['Type'])
+#    if every_hc['HealthCheckConfig']['Type'] in accepted_healthcheck_types:
+#        new_name = compute_new_hc_name(every_hc['HealthCheckConfig']['IPAddress'], every_hc['HealthCheckConfig']['FullyQualifiedDomainName'])
+#        #new_tags = [{'Key':'Name', 'Value':new_name}, lm_tag]
+#        new_tags = [lm_tag]
+#
+#        response = client.change_tags_for_resource(
+#                        ResourceType='healthcheck',
+#                        ResourceId=every_hc['Id'],
+#                        AddTags = new_tags
+#                    )

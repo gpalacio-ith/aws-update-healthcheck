@@ -64,6 +64,21 @@ def is_ip_healthy(zone_id, record_name, record_type, ip_addr, session):
     else:
         return(False)
 
+# Return all healthchecks on R53 for a given session
+def get_all_healthchecks(session):
+    client = session.client('route53')
+    paginator = client.get_paginator('list_health_checks')
+    response_iterator = paginator.paginate(
+                            PaginationConfig={
+                                'MaxItems': 500,
+                                'PageSize': 500
+                        })
+
+    all_healthchecks = []
+    for index, each_page in enumerate(response_iterator):
+        for each_healthcheck in each_page['HealthChecks']:
+            all_healthchecks.append(each_healthcheck)
+    return(all_healthchecks)
 
 # Given a list of one or more ips, return all the found healthchecks
 def get_healthchecks(ip_list, session):
